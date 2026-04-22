@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Monoton&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=VT323&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #022623;
+  color: #f5efe0;
+}
+
+code {
+  font-family: 'VT323', monospace;
+}
+
+/* Custom font utilities */
+.font-display { font-family: 'Monoton', cursive; letter-spacing: 0.05em; }
+.font-retro { font-family: 'VT323', monospace; }
+.font-head { font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 0.08em; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #022623; }
+::-webkit-scrollbar-thumb { background: #13887F; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #CE9A16; }
+
+/* Grid backdrop for 80s feel */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(19, 136, 127, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 136, 127, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.noise-overlay::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Glow utilities */
+.glow-gold { text-shadow: 0 0 10px rgba(206, 154, 22, 0.6), 0 0 20px rgba(206, 154, 22, 0.3); }
+.glow-teal { text-shadow: 0 0 12px rgba(19, 136, 127, 0.7), 0 0 24px rgba(19, 136, 127, 0.35); }
+.glow-red { text-shadow: 0 0 10px rgba(206, 22, 22, 0.7), 0 0 22px rgba(206, 22, 22, 0.35); }
+
+/* Chrome text effect 80s */
+.chrome-text {
+  background: linear-gradient(180deg, #f7e7bb 0%, #CE9A16 45%, #7a5a0a 55%, #f7e7bb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* VHS scanlines */
+.scanlines {
+  position: relative;
+}
+.scanlines::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 3px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Pulse border */
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(206, 154, 22, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(206, 154, 22, 0); }
+}
+.pulse-gold { animation: pulseGold 2.2s infinite; }
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.6; }
+}
+.flicker { animation: flicker 4s infinite; }
+
+@keyframes gridMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+.grid-move { animation: gridMove 6s linear infinite; }
+
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.float-up { animation: floatUp 0.8s ease-out both; }
+
+@layer base {
+  :root {
+    --background: 174 88% 12%;
+    --foreground: 45 40% 92%;
+    --card: 174 80% 10%;
+    --card-foreground: 45 40% 92%;
+    --popover: 174 80% 10%;
+    --popover-foreground: 45 40% 92%;
+    --primary: 175 74% 31%;
+    --primary-foreground: 45 40% 92%;
+    --secondary: 42 80% 45%;
+    --secondary-foreground: 174 88% 12%;
+    --muted: 174 40% 18%;
+    --muted-foreground: 45 15% 75%;
+    --accent: 42 80% 45%;
+    --accent-foreground: 174 88% 12%;
+    --destructive: 0 80% 45%;
+    --destructive-foreground: 45 40% 92%;
+    --border: 175 50% 20%;
+    --input: 175 50% 20%;
+    --ring: 42 80% 45%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}

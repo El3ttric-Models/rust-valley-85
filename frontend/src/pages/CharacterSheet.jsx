@@ -49,11 +49,14 @@ function DiscordLogin() {
 
 function Field({ f, value, onChange }) {
   const base = { background: 'rgba(2,38,35,0.9)', border: '1px solid rgba(19,136,127,0.5)', color: '#f5efe0' };
+  const maxLen = f.maxLength;
+  const len = (value || '').length;
+  const overLimit = maxLen && len >= maxLen;
   return (
     <div className={f.type === 'textarea' ? 'md:col-span-2' : ''}>
       <label className="font-head uppercase tracking-widest text-xs" style={{ color: '#CE9A16' }}>{f.label}</label>
       {f.type === 'textarea' ? (
-        <textarea rows={f.rows || 4} value={value} onChange={onChange} placeholder={f.placeholder}
+        <textarea rows={f.rows || 4} value={value} onChange={onChange} placeholder={f.placeholder} maxLength={maxLen}
           className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors" style={base} />
       ) : f.type === 'select' ? (
         <select value={value} onChange={onChange}
@@ -62,12 +65,19 @@ function Field({ f, value, onChange }) {
           {f.options.map((o) => (<option key={o} value={o}>{o}</option>))}
         </select>
       ) : (
-        <input type={f.type} value={value} onChange={onChange} placeholder={f.placeholder}
+        <input type={f.type} value={value} onChange={onChange} placeholder={f.placeholder} maxLength={maxLen}
           className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors" style={base} />
       )}
-      {f.hint && (
-        <div className="mt-1 text-[11px]" style={{ color: '#9fbfbb' }}>{f.hint}</div>
-      )}
+      <div className="mt-1 flex items-center justify-between gap-3">
+        {f.hint ? (
+          <span className="text-[11px]" style={{ color: '#9fbfbb' }}>{f.hint}</span>
+        ) : <span />}
+        {maxLen && (
+          <span className="text-[11px] font-head tracking-widest" style={{ color: overLimit ? '#CE1616' : (len > maxLen * 0.9 ? '#CE9A16' : '#9fbfbb') }}>
+            {len}/{maxLen}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

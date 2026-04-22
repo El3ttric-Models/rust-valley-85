@@ -183,32 +183,61 @@ def _truncate(s: str, n: int = 1000) -> str:
     return s if len(s) <= n else s[: n - 3] + '...'
 
 
-async def _send_discord_webhook(title: str, description: str, fields: list, user: Dict[str, Any]):
+async def _send_discord_webhook(title: str, description: str, fields: list, user: Dict[str, Any], extra_messages: Optional[list] = None):
+    """Send a webhook with optional follow-up messages.
+    - title/description/fields → first embed (Discord limit 6000 chars across the embed).
+    - extra_messages: list of dicts {title, value} → each sent as its own follow-up webhook POST
+      to stay within Discord's 6000-char per-message limit (ideal for long background sections).
+    """
     if not DISCORD_WEBHOOK_URL:
         logging.warning('DISCORD_WEBHOOK_URL not configured')
         return False
     avatar_url = None
     if user.get('avatar'):
         avatar_url = f"https://cdn.discordapp.com/avatars/{user['id']}/{user['avatar']}.png"
+    author = {
+        'name': f"{user.get('global_name') or user.get('username')} ({user.get('id')})",
+        **({'icon_url': avatar_url} if avatar_url else {}),
+    }
+    footer = {'text': "Rust Valley 85's \u00b7 Staff Review"}
+
     embed = {
         'title': title,
         'description': description[:2000],
         'color': 0xCE9A16,
         'timestamp': datetime.now(timezone.utc).isoformat(),
-        'author': {
-            'name': f"{user.get('global_name') or user.get('username')} ({user.get('id')})",
-            **({'icon_url': avatar_url} if avatar_url else {}),
-        },
-        'footer': {'text': "Rust Valley 85's \u00b7 Staff Review"},
+        'author': author,
+        'footer': footer,
         'fields': fields[:25],
     }
+    ok = True
     try:
         r = requests.post(DISCORD_WEBHOOK_URL, json={'embeds': [embed]}, timeout=10)
         r.raise_for_status()
-        return True
     except Exception as e:
-        logging.exception('webhook error: %s', e)
-        return False
+        logging.exception('webhook error (main): %s', e)
+        ok = False
+
+    # Follow-up messages: one embed per long-text subsection to avoid the 6000 chars/message limit.
+    if extra_messages:
+        for i, m in enumerate(extra_messages, start=1):
+            val = str(m.get('value', ''))
+            if not val.strip():
+                continue
+            follow_embed = {
+                'title': m.get('title', f'Sezione {i}'),
+                'description': val[:4000],
+                'color': 0x13887F,
+                'author': author,
+                'footer': footer,
+            }
+            try:
+                r = requests.post(DISCORD_WEBHOOK_URL, json={'embeds': [follow_embed]}, timeout=10)
+                r.raise_for_status()
+            except Exception as e:
+                logging.exception('webhook error (follow %s): %s', i, e)
+                ok = False
+    return ok
 
 
 @api_router.post('/submit/character')
@@ -220,20 +249,36 @@ async def submit_character(payload: SubmitCharacter, request: Request):
         raise HTTPException(status_code=401, detail='Not authenticated')
 
     data = payload.data or {}
-    # Build fields grouped by section
-    SECTION_ORDER = [
+    # Grouped sections (aggregated in one embed field each)
+    GROUPED_SECTIONS = [
         ('Anagrafica', ['fullName', 'nickname', 'birthDate', 'birthPlace', 'nationality', 'gender']),
+        ('Origini & Ruolo', ['ethnicity', 'legalStatus', 'religion', 'archetype']),
         ('Aspetto', ['height', 'weight', 'eyes', 'hair', 'signs']),
         ('Famiglia', ['father', 'mother', 'siblings', 'socialClass']),
         ('Formazione', ['education', 'jobs', 'skills']),
         ('Personalit\u00e0', ['traits', 'virtues', 'flaws', 'fears', 'goals']),
-        ('Background', ['childhood', 'adolescence', 'adulthood', 'arrival', 'future']),
+    ]
+    # Background narrative subsections: each becomes a dedicated embed field (up to 1024 chars each)
+    BACKGROUND_SUBSECTIONS = [
+        ('Infanzia', 'childhood'),
+        ('Adolescenza', 'adolescence'),
+        ('Et\u00e0 adulta', 'adulthood'),
+        ('Arrivo a Rust Valley', 'arrival'),
+        ('Prospettive future', 'future'),
+        ('Condanne penali', 'convictions'),
     ]
     fields = []
-    for section, keys in SECTION_ORDER:
+    for section, keys in GROUPED_SECTIONS:
         parts = [f"**{k}**: {_truncate(data.get(k, ''), 240)}" for k in keys if data.get(k)]
         if parts:
             fields.append({'name': section, 'value': _truncate('\n'.join(parts), 1024), 'inline': False})
+
+    # Each background subsection sent as its own follow-up webhook message
+    extra_messages = []
+    for label, key in BACKGROUND_SUBSECTIONS:
+        val = data.get(key)
+        if val and str(val).strip():
+            extra_messages.append({'title': f'Background \u00b7 {label}', 'value': str(val)})
 
     submission_id = str(uuid.uuid4())
     await db.submissions.insert_one({
@@ -249,6 +294,7 @@ async def submit_character(payload: SubmitCharacter, request: Request):
         description=f"Inviata da **{user.get('username')}** (<@{user['id']}>)",
         fields=fields or [{'name': 'Nota', 'value': 'Scheda inviata vuota.', 'inline': False}],
         user=user,
+        extra_messages=extra_messages,
     )
     return {'ok': True, 'submission_id': submission_id, 'webhook_sent': ok}
 

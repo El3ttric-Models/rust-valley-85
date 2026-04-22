@@ -418,12 +418,12 @@ export const CHARACTER_SECTIONS = [
     id: 'background',
     title: 'Background Narrativo',
     fields: [
-      { key: 'childhood', label: 'Infanzia', type: 'textarea', rows: 5 },
-      { key: 'adolescence', label: 'Adolescenza', type: 'textarea', rows: 5 },
-      { key: 'adulthood', label: 'Età adulta', type: 'textarea', rows: 5 },
-      { key: 'arrival', label: "Arrivo a Rust Valley (motivo)", type: 'textarea', rows: 5 },
-      { key: 'future', label: 'Prospettive future', type: 'textarea', rows: 4 },
-      { key: 'convictions', label: 'Condanne penali (opzionale)', type: 'textarea', rows: 4, placeholder: 'Elenca condanne rilevanti del passato, se coerenti con la storia.' },
+      { key: 'childhood', label: 'Infanzia', type: 'textarea', rows: 5, maxLength: 1000, hint: 'Massimo 1000 caratteri.' },
+      { key: 'adolescence', label: 'Adolescenza', type: 'textarea', rows: 5, maxLength: 1000, hint: 'Massimo 1000 caratteri.' },
+      { key: 'adulthood', label: 'Età adulta', type: 'textarea', rows: 5, maxLength: 1000, hint: 'Massimo 1000 caratteri.' },
+      { key: 'arrival', label: "Arrivo a Rust Valley (motivo)", type: 'textarea', rows: 5, maxLength: 1000, hint: 'Massimo 1000 caratteri.' },
+      { key: 'future', label: 'Prospettive future', type: 'textarea', rows: 4, maxLength: 1000, hint: 'Massimo 1000 caratteri.' },
+      { key: 'convictions', label: 'Condanne penali (opzionale)', type: 'textarea', rows: 4, maxLength: 1000, hint: 'Massimo 1000 caratteri. Elenca condanne rilevanti del passato, se coerenti con la storia.' },
     ],
   },
 ];

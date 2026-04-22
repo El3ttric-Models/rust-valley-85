@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, BookOpen, Shield, User } from 'lucide-react';
+import { Menu, X, BookOpen, Shield, User } from 'lucide-react';
 import SocialIcons from './SocialIcons';
 import Logo from './Logo';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [wikiOpen, setWikiOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -18,7 +17,6 @@ export default function Navbar() {
 
   useEffect(() => {
     setOpen(false);
-    setWikiOpen(false);
   }, [location.pathname]);
 
   const linkBase =
@@ -34,6 +32,8 @@ export default function Navbar() {
     background: '#CE9A16',
     border: '1px solid #CE9A16',
   };
+
+  const isWikiActive = location.pathname.startsWith('/wiki');
 
   return (
     <header
@@ -54,41 +54,9 @@ export default function Navbar() {
             <Shield size={14} /> Regole
           </NavLink>
 
-          <div
-            className="relative"
-            onMouseEnter={() => setWikiOpen(true)}
-            onMouseLeave={() => setWikiOpen(false)}
-          >
-            <button
-              className={linkBase}
-              style={location.pathname.startsWith('/wiki') ? styleActive : styleInactive}
-              aria-haspopup="true"
-              aria-expanded={wikiOpen}
-            >
-              <BookOpen size={14} /> Wiki <ChevronDown size={14} />
-            </button>
-            {wikiOpen && (
-              <div
-                className="absolute left-0 top-full mt-2 min-w-[260px] rounded-xl overflow-hidden shadow-2xl"
-                style={{ background: '#043935', border: '1px solid #CE9A16' }}
-              >
-                <Link
-                  to="/wiki/background-guide"
-                  className="block px-5 py-3 font-head text-sm uppercase tracking-widest hover:bg-[#13887F]/30 border-b border-[#13887F]/40"
-                  style={{ color: '#f5efe0' }}
-                >
-                  Background Guide
-                </Link>
-                <Link
-                  to="/wiki/historical"
-                  className="block px-5 py-3 font-head text-sm uppercase tracking-widest hover:bg-[#13887F]/30"
-                  style={{ color: '#f5efe0' }}
-                >
-                  Introduzione Storica
-                </Link>
-              </div>
-            )}
-          </div>
+          <NavLink to="/wiki" style={() => (isWikiActive ? styleActive : styleInactive)} className={linkBase}>
+            <BookOpen size={14} /> Wiki
+          </NavLink>
 
           <NavLink to="/character-sheet" style={({ isActive }) => (isActive ? styleActive : styleInactive)} className={linkBase}>
             <User size={14} /> Scheda Personaggio
@@ -113,8 +81,7 @@ export default function Navbar() {
         <div className="lg:hidden border-t" style={{ borderColor: '#13887F', background: '#022623' }}>
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2">
             <NavLink to="/rules" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Regole</NavLink>
-            <NavLink to="/wiki/background-guide" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Wiki · Background Guide</NavLink>
-            <NavLink to="/wiki/historical" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Wiki · Introduzione Storica</NavLink>
+            <NavLink to="/wiki" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Wiki</NavLink>
             <NavLink to="/character-sheet" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#CE9A16', color: '#043935' }}>Scheda Personaggio</NavLink>
             <div className="pt-3"><SocialIcons variant="footer" /></div>
           </div>

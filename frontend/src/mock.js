@@ -1,20 +1,19 @@
-// Mock data for Rust Valley 85's — all content here is placeholder and editable.
+// Mock data for Rust Valley 85's — graphics paths are editable in /public/assets/
 
 export const BRAND = {
   name: "Rust Valley 85's",
   short: 'RV85',
-  tagline: "Where the '80s never died.",
-  subtitle: "An immersive 80s-themed FiveM roleplay experience.",
-  // Placeholder logo (text-based) — replace freely later in /public/logo.png
-  logoUrl: null,
+  tagline: "Country America, 1985.",
+  subtitle: "Un server FiveM Roleplay ambientato nella provincia americana degli anni '80.",
+  logoUrl: '/assets/logo.png',
 };
 
 export const IMAGES = {
-  hero: 'https://images.unsplash.com/photo-1706466615917-e44750d177d7?w=1920&q=80',
-  rules: 'https://images.unsplash.com/photo-1717703943629-9a6d04e7adbb?w=1920&q=80',
-  wiki: 'https://images.pexels.com/photos/414136/pexels-photo-414136.jpeg?w=1920&q=80',
-  city: 'https://images.unsplash.com/photo-1732704895089-ec0e78d7ce91?w=1920&q=80',
-  valley: 'https://images.unsplash.com/photo-1694532573669-f611b17fe414?w=1920&q=80',
+  hero: '/assets/background.png',
+  rules: '/assets/background.png',
+  wiki: '/assets/background.png',
+  city: '/assets/background.png',
+  valley: '/assets/background.png',
 };
 
 export const SOCIAL = {
@@ -24,155 +23,111 @@ export const SOCIAL = {
   discord: 'https://discord.gg/AHcnRrm5VD',
 };
 
-export const HIGHLIGHTS = [
-  { title: 'Ambientazione 1985', desc: 'Rust Valley vive nel cuore degli anni \'80: neon, cassette, muscle cars e radio FM.', icon: 'Radio' },
-  { title: 'Roleplay Profondo', desc: 'Personaggi persistenti, economia reattiva e storie che si intrecciano ogni notte.', icon: 'Users' },
-  { title: 'Staff Dedicato', desc: 'Un team attivo 24/7 per moderazione, eventi e supporto giocatori.', icon: 'Shield' },
-  { title: 'Eventi Settimanali', desc: 'Drive-in, gare clandestine, concerti synth e molto altro.', icon: 'Calendar' },
-];
-
-export const STATS = [
-  { value: '1985', label: 'Anno di Ambientazione' },
-  { value: '300+', label: 'Cittadini Attivi' },
-  { value: '24/7', label: 'Server Online' },
-  { value: '50+', label: 'Eventi al Mese' },
-];
+// --- REGOLAMENTO (testo fornito dall'utente, suddiviso in sezioni) ---
+export const RULES_INTRO = {
+  title: 'Introduzione',
+  paragraphs: [
+    "Il nostro server non è un classico server di FiveM: le dinamiche, l'ambientazione e le interazioni sono completamente personalizzate per immergervi nello stile country americano del 1985. Comprendere le regole non significa solo rispettare le norme, ma anche capire come vivere appieno l'esperienza, interagire con gli altri giocatori e con l'ambiente in modo coerente con il mondo che vi circonda.",
+    "Ignorare il regolamento non è un semplice errore: può compromettere la vostra esperienza e quella degli altri. Ogni sezione di questo documento è stata pensata per guidarvi attraverso le regole di ruolo, comportamento, economia, housing e interazioni, così da garantire un'esperienza immersiva, equa e unica. Leggere, comprendere e rispettare il regolamento è il primo passo per entrare davvero a far parte di Rust Valley.",
+  ],
+  tip: "Immaginate di essere i protagonisti del vostro film. Ogni volta che state recitando il vostro personaggio chiedetevi: sto realizzando al meglio la scena? Sto coinvolgendo i presenti? Sto lasciando margine di improvvisazione agli altri? Siate gli attori del film che vorreste guardare.",
+};
 
 export const RULES = [
   {
-    id: 'generali',
-    title: 'Regole Generali',
+    id: 'base-rp',
+    title: "Regole di base dell'RP",
     items: [
-      'Rispetta ogni membro della community, in gioco, in chat e in vocale.',
-      "Ogni linguaggio d'odio, razzismo, sessismo o discriminazione è vietato.",
-      "L'uso di cheat, exploit o software di terze parti comporta ban permanente.",
-      'Non condividere informazioni personali tue o altrui.',
-      "L'età minima per giocare è 16 anni. Potrà essere richiesto un controllo.",
+      "VDM — È vietato investire un altro personaggio senza un valido motivo in RP. È consentita la collisione PG-veicolo solo a scopi di scena in RP quando strettamente necessario.",
+      "RDM — È vietato uccidere un altro personaggio con un veicolo o senza una motivazione valida in Roleplay.",
+      "Fail RP — Vietata qualsiasi azione forzata o irreale che non troverebbe riscontro nella vita reale. Il Roleplay deve mantenere coerenza con il contesto, il background del personaggio e la logica della vita reale dell'epoca.",
+      "Powergame — Vietato sfruttare in modo irrealistico o scorretto le meccaniche di gioco per trarne vantaggio. Stile di guida irrealistico vietato anche su sterrato (dove non ci sono limiti di velocità). Vietato usare radio in acqua, estrarre armi pesanti senza borsone, abbassarsi/alzarsi ripetutamente in sparatoria, salti o scalate irrealistiche con veicoli non adatti.",
+      "Metagame — Vietato l'uso di informazioni ottenute fuori dal gioco se danneggia l'RP altrui (es. localizzare un rapito tramite una live). Consentito invece sfruttare in RP un'informazione IC (es. morte avvenuta in RP). Vietato lo stream sniping.",
+      "No Fear — Ogni personaggio deve mostrare timore in situazioni di pericolo (armi puntate, rapimenti, vita o morte). In caso di azioni forzate può essere richiesto il permadeath con clip a supporto.",
+      "Revenge Kill — Vietato vendicarsi del proprio assassino senza coerenza e giustificazione IC dopo il ritorno in gioco.",
+      "Car Surf — Vietato posizionarsi sopra un veicolo in movimento senza essere seduti.",
+      "Car Jack — Vietato rubare un veicolo senza un concreto scopo RP.",
+      "Bunny Hop — Vietato saltare ripetutamente per muoversi più velocemente: comportamento irrealistico e scorretto.",
+      "Bug/Glitch Abuse — Severamente vietato sfruttare bug o glitch. Obbligo di segnalazione allo staff.",
+      "Cheating e Citizen vietati — Vietato l'uso di citizen o programmi esterni che conferiscano vantaggi (No Props, No Rolas, Rapid Fire, Damage Boost, Filter Keys, Bush 2D e simili).",
+      "Cop Baiting — Vietato provocare immotivatamente le forze dell'ordine per forzare un'azione RP.",
+      "Combat Logging — Vietato introdursi in un'azione RP iniziata prima del proprio collegamento in game.",
     ],
   },
   {
-    id: 'roleplay',
-    title: 'Regole di Roleplay',
+    id: 'dinamiche',
+    title: "Dinamiche di gioco",
     items: [
-      'Interpreta sempre il tuo personaggio con coerenza (no meta-gaming, no power-gaming).',
-      "Rispetta il concetto di Fear RP: il tuo personaggio ha paura di morire.",
-      "Il Random Death Match (RDM) e il Vehicle Death Match (VDM) non sono ammessi.",
-      "L'OOC in chat IC è vietato. Usa i canali appropriati.",
-      'Ogni azione deve avere una motivazione IC credibile e coerente con gli anni \'80.',
+      "Loot — Consentito solo se coerente con il background del giocatore e con il coinvolgimento in un'azione RP. Vietato lootare un giocatore \"a terra\" senza essere stati coinvolti in un'azione con lui. Vietato ingaggiare rapine o rapimenti finalizzati al loot se il background non giustifica tale comportamento.",
+      "Rapine e Furti — Consentita qualsiasi tipologia di rapina (negozietti, banche, locali, giocatori, veicoli) se il background giustifica il gesto. Nessun limite nell'uso di armi da fuoco o bianche. Severamente vietato usare caschi per evitare l'uccisione durante le sparatorie.",
+      "PED & NPC — Tutti gli NPC e i PED ruolati dallo staff per quest sono a tutti gli effetti dei player. L'uccisione di un NPC equivale a quella di un player. Verso i PED dello staff ci si deve comportare normalmente.",
     ],
   },
   {
-    id: 'ambientazione',
-    title: "Ambientazione Anni '80",
+    id: 'specifiche',
+    title: 'Regole specifiche',
     items: [
-      'Nessun riferimento a tecnologia moderna: niente smartphone, social, internet.',
-      "Linguaggio, musica e abbigliamento devono essere coerenti con il periodo 1980-1989.",
-      "I veicoli autorizzati sono solo quelli d'epoca presenti nella lista whitelist.",
-      'Le armi disponibili sono limitate al catalogo \'80: no armi automatiche moderne.',
-      "I nomi dei personaggi devono suonare credibili per l'epoca.",
+      "Ingaggio — Lo scontro a fuoco è l'ultima spiaggia. Prima dell'ingaggio fisico deve sempre esserci un ingaggio verbale. Durante l'azione, almeno inizialmente, non sparare in testa: l'obiettivo è avere sparatorie più realistiche e durature.",
+      "Corruzione — Chi ricopre cariche pubbliche o elettive può liberamente scegliere una linea RP corrotta, a proprio rischio e pericolo e consapevole delle conseguenze IC.",
+      "Prove — Gli spari lasciano bossoli e proiettili raccoglibili da tutti i giocatori. È consentito raccogliere prove per sviare le indagini; in caso contrario la polizia può raccoglierle e usarle nelle investigazioni.",
+      "Giocatori a terra — Con rianimazione dai paramedici: memoria totale immediata. Respawn senza paramedici: memoria totale dopo 24 ore dal respawn. Permadeath: perdita della memoria permanente.",
     ],
   },
   {
-    id: 'criminalita',
-    title: 'Criminalità & Conflitti',
+    id: 'lavori-items',
+    title: 'Lavori & Items',
     items: [
-      "Il numero massimo di membri attivi in un gruppo criminale è 8.",
-      "I sequestri devono durare almeno 20 minuti e avere motivo IC.",
-      'Le rapine ai negozi richiedono almeno 4 agenti in servizio.',
-      "Il New Life Rule si applica dopo ogni morte: perdi i ricordi degli ultimi 15 minuti.",
-      'È vietato attaccare safe zones come ospedali, dipartimento di polizia e municipio.',
+      "Lavori in game — Sono presenti lavori No-WL per nuovi arrivati. L'assunzione WL avviene solo in game, tramite presentazione del \"Curriculum\" cartaceo al datore di lavoro (generalità + competenze).",
+      "Attività esistenti — Per prendere in mano un'attività già esistente (es. Angel's Pub) aprire ticket Discord con domanda job.",
+      "Nuove attività — Per crearne una nuova (es. raccolta items per crafting) c'è piena libertà, senza ticket.",
+      "Utilizzo degli items — Gli oggetti devono essere posizionati fisicamente a terra con il tasto \"Posiziona\". Vietato \"buttarli\" dall'inventario. Gli oggetti posizionati sono visibili a tutti: se illeciti e visti dalle forze dell'ordine comportano sanzioni IC.",
     ],
   },
   {
-    id: 'sanzioni',
-    title: 'Sanzioni',
+    id: 'condotta',
+    title: "Linguaggio, condotta e interpretazione",
     items: [
-      'Warn verbale per infrazioni lievi di prima violazione.',
-      'Kick dal server per infrazioni ripetute o medie.',
-      'Ban temporaneo (1-30 giorni) per infrazioni gravi.',
-      'Ban permanente per cheating, tossicità grave o reiterata.',
-      "Ogni sanzione può essere appellata tramite ticket entro 48 ore.",
+      "Sono severamente vietati termini discriminatori che violino le policy di Twitch e FiveM.",
+      "L'ambientazione rurale e conservatrice degli anni '80 può portare a temi oggi considerati discriminatori: lo staff ne consente l'esplorazione solo a fini narrativi, in modo maturo, rispettoso e contestualizzato.",
+      "Severamente vietati modificatori vocali che alterino la voce in modo innaturale o irrealistico.",
+      "Non è consentito interpretare personaggi di età inferiore a 18 anni.",
+      "Non è consentito ruolare personaggi del sesso opposto.",
+    ],
+  },
+  {
+    id: 'assistenze',
+    title: 'Assistenze',
+    items: [
+      "Severamente vietato entrare in assistenza Discord senza valida motivazione (bug o contestazione).",
+      "Le contestazioni sono valide solo se accompagnate da prova video a supporto. Senza prova la contestazione viene respinta e si riceve un WARN.",
+      "Vietato scrivere in chat privata ai membri dello staff: ogni trasgressione comporta WARN.",
+    ],
+  },
+  {
+    id: 'permadeath',
+    title: 'Permadeath',
+    items: [
+      "La richiesta di Permadeath è consentita con almeno 5 motivi RP validi e dimostrabili tramite prove video, aprendo ticket Discord.",
+      "In assistenza sarà chiesta la condivisione delle prove video a supporto.",
+      "Lo staff può valutare alcune azioni come motivo di permadeath in determinati contesti.",
+      "Casi standard di morte definitiva: esplosione di veicolo/velivolo; esplosione nelle immediate vicinanze; morte in acqua; animale feroce; investimento da treno; caduta da altitudine elevata; collisione molto grave che giustifichi morte certa (senza esplosione).",
     ],
   },
 ];
 
+export const RULES_FOOTER =
+  "Lo Staff si riserva il diritto di cambiare o aggiornare il regolamento in qualsiasi momento, dandone comunicazione a tutti i player.";
+
+// --- WIKI placeholders (saranno modificati dall'utente) ---
 export const BACKGROUND_GUIDE = [
-  {
-    id: 'intro',
-    title: 'Come scrivere un buon background',
-    content:
-      "Il background è la storia del tuo personaggio prima del suo arrivo a Rust Valley. Deve essere credibile, coerente con gli anni '80 e offrire ganci narrativi per altri giocatori. Evita poteri speciali, origini mitiche o storie troppo drammatiche: la semplicità è credibilità.",
-  },
-  {
-    id: 'struttura',
-    title: 'Struttura consigliata',
-    content:
-      "1. Infanzia e famiglia (dove sei nato, chi ti ha cresciuto). 2. Adolescenza e formazione (scuola, primi amori, prime scelte). 3. Vita adulta pre-Rust Valley (lavori, traumi, successi). 4. Motivo dell'arrivo a Rust Valley. 5. Aspirazioni e obiettivi presenti.",
-  },
-  {
-    id: 'dos',
-    title: 'Cosa fare',
-    bullets: [
-      "Ambientare la storia in luoghi reali degli anni '80.",
-      'Inserire dettagli sensoriali (musiche, profumi, moda).',
-      "Creare relazioni con NPC o altri personaggi.",
-      "Lasciare zone d'ombra da riempire con il roleplay.",
-      "Rileggere e correggere refusi e incongruenze.",
-    ],
-  },
-  {
-    id: 'donts',
-    title: "Cosa evitare",
-    bullets: [
-      "Poteri sovrannaturali, origini aliene o storie fantasy.",
-      "Parentele con personalità reali famose.",
-      "Traumi eccessivi solo per fare scena.",
-      'Riferimenti a tecnologie post-1989.',
-      "Storie che rendono il personaggio immortale o invincibile.",
-    ],
-  },
-  {
-    id: 'esempio',
-    title: 'Esempio breve',
-    content:
-      "Marcus Delaney è nato nel 1958 a Detroit. Figlio di un operaio Ford e di una cameriera, cresce tra le officine e i juke-box del quartiere. A 17 anni scappa di casa con una Pontiac Firebird rubata al padre. Dopo anni tra piccoli lavori e grandi guai, nel 1985 approda a Rust Valley cercando una seconda possibilità — o almeno una cassetta di Bruce Springsteen che funzioni nello stereo della sua auto.",
-  },
+  { id: 'placeholder', title: 'Contenuto in aggiornamento', content: 'La guida al background verrà pubblicata a breve. Torna più tardi per scoprire come scrivere il tuo personaggio a Rust Valley.' },
 ];
 
 export const HISTORICAL = [
-  {
-    id: 'fondazione',
-    title: 'La Fondazione di Rust Valley',
-    content:
-      'Fondata nel 1887 come città mineraria ai piedi delle Blackrock Mountains, Rust Valley deve il suo nome al colore rossastro dei giacimenti di ferro che hanno segnato la sua prima economia. Con il declino delle miniere negli anni \'50, la città si reinventa come snodo commerciale lungo la leggendaria Route 85.',
-  },
-  {
-    id: 'anni80',
-    title: "L'Alba degli Anni '80",
-    content:
-      "Il 1980 porta a Rust Valley un'ondata di rinascita: il boom immobiliare, l'apertura del Neon Mall, l'inaugurazione della stazione radio K-RUST 98.5 FM. La città diventa terra di promesse per artisti, criminali, veterani e sognatori. I quartieri si riempiono di videoclub, sale giochi e fast food.",
-  },
-  {
-    id: 'quartieri',
-    title: 'I Quartieri Storici',
-    content:
-      "Downtown è il cuore amministrativo, con il municipio art déco e il Police Department. East Rust è il quartiere operaio, famoso per il Drive-In Starlite. Sunset Boulevard ospita ville, locali esclusivi e il celebre hotel Flamingo. North Heights, sulle colline, è il rifugio dei nuovi ricchi. South Flats, vicino al fiume, è il lato oscuro della città.",
-  },
-  {
-    id: 'economia',
-    title: "Economia e Società",
-    content:
-      'Il commercio su ruote è il motore dell\'economia: motel, diner e stazioni di servizio punteggiano la valle. Le gang controllano parte del mercato nero — automobili, sostanze, musica pirata su cassetta. La polizia combatte una guerra silenziosa contro la crescente criminalità, mentre la stampa locale alimenta i sogni di una città che vuole sentirsi viva, a ogni costo.',
-  },
-  {
-    id: 'cultura',
-    title: 'Cultura e Musica',
-    content:
-      "Rust Valley è colonna sonora di synth, rock e new wave. I nomi sulle marquee del Teatro Apollo cambiano ogni settimana: band locali, comici in tour, proiezioni di cult movie. Le radio trasmettono hit di Michael Jackson, Madonna, The Police. I ragazzi corrono su skateboard, le ragazze ballano al Roller Rink. Tutto è luminoso, tutto è veloce, tutto brucia in fretta.",
-  },
+  { id: 'placeholder', title: 'Contenuto in aggiornamento', content: "L'introduzione storica verrà pubblicata a breve. Resta collegato per scoprire la storia di Rust Valley." },
 ];
 
-// Character sheet sections
+// --- Character sheet sections ---
 export const CHARACTER_SECTIONS = [
   {
     id: 'anagrafica',
@@ -194,7 +149,7 @@ export const CHARACTER_SECTIONS = [
       { key: 'weight', label: 'Peso (kg)', type: 'number', placeholder: '75' },
       { key: 'eyes', label: 'Colore occhi', type: 'text', placeholder: 'Castani' },
       { key: 'hair', label: 'Colore capelli', type: 'text', placeholder: 'Biondi' },
-      { key: 'signs', label: 'Segni particolari', type: 'textarea', placeholder: 'Cicatrici, tatuaggi, neo...' },
+      { key: 'signs', label: 'Segni particolari', type: 'textarea', placeholder: 'Cicatrici, tatuaggi, nei...' },
     ],
   },
   {

@@ -101,3 +101,17 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+## Rust Valley 85's — Backend testing required
+- Backend Discord OAuth + webhook submissions + drafts persistence.
+- Endpoints to test:
+  - GET /api/ → 200 JSON
+  - GET /api/auth/discord/login → 302 redirect to discord.com/api/oauth2/authorize with correct client_id and scope=identify
+  - GET /api/auth/me without Authorization → 401
+  - POST /api/drafts without auth → 401
+  - With a MANUALLY CREATED JWT using JWT_SECRET (from backend/.env, algorithm HS256) containing {id: 'test_123', username: 'tester', discriminator: '0', avatar: null}:
+    - GET /api/auth/me → 200 with user
+    - POST /api/drafts {"kind":"character","data":{"fullName":"Test"}} → 200 {ok:true}
+    - GET /api/drafts/character → returns same data
+    - POST /api/submit/background {"charName":"Test","story":"Breve storia di prova","motivation":"Test"} → 200 with webhook_sent boolean (may be false if webhook offline; that is acceptable, but submission must be saved in Mongo)
+    - POST /api/submit/character {"data":{"fullName":"Test","birthDate":"1960-01-01","childhood":"x","adulthood":"y","arrival":"z"}} → 200
+- Verify backend is restarting cleanly (no import errors in /var/log/supervisor/backend.err.log)

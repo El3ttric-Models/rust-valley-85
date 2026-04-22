@@ -1,89 +1,305 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Cookie
+from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
+from pydantic import BaseModel, Field
+from typing import Optional, Any, Dict
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
 from datetime import datetime, timezone
-
+import os
+import uuid
+import logging
+import requests
+import jwt
+from urllib.parse import urlencode
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# Mongo
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
+# Discord config
+DISCORD_CLIENT_ID = os.environ.get('DISCORD_CLIENT_ID', '')
+DISCORD_CLIENT_SECRET = os.environ.get('DISCORD_CLIENT_SECRET', '')
+DISCORD_REDIRECT_URI = os.environ.get('DISCORD_REDIRECT_URI', '')
+DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL', '')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'change_me')
+
+DISCORD_AUTH_BASE = 'https://discord.com/api/oauth2/authorize'
+DISCORD_TOKEN_URL = 'https://discord.com/api/oauth2/token'
+DISCORD_USER_URL = 'https://discord.com/api/users/@me'
+
 app = FastAPI()
-
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+api_router = APIRouter(prefix='/api')
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+# ---------------- Models ----------------
+class DraftIn(BaseModel):
+    kind: str = Field(..., description='character | background')
+    data: Dict[str, Any]
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class SubmitCharacter(BaseModel):
+    data: Dict[str, Any]
 
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
+class SubmitBackground(BaseModel):
+    charName: str
+    playerName: Optional[str] = ''
+    discordTag: Optional[str] = ''
+    age: Optional[str] = ''
+    story: str
+    motivation: Optional[str] = ''
+
+
+def make_jwt(user: Dict[str, Any]) -> str:
+    payload = {
+        'id': user['id'],
+        'username': user.get('username'),
+        'global_name': user.get('global_name'),
+        'avatar': user.get('avatar'),
+        'discriminator': user.get('discriminator', '0'),
+        'iat': datetime.now(timezone.utc).timestamp(),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+
+
+def get_user_from_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
+    if not token:
+        return None
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+    except jwt.PyJWTError:
+        return None
+
+
+# ---------------- Routes ----------------
+@api_router.get('/')
 async def root():
-    return {"message": "Hello World"}
+    return {'message': 'Rust Valley 85s API'}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.get('/auth/discord/login')
+async def discord_login():
+    params = {
+        'client_id': DISCORD_CLIENT_ID,
+        'redirect_uri': DISCORD_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'identify',
+        'prompt': 'consent',
+    }
+    return RedirectResponse(f'{DISCORD_AUTH_BASE}?{urlencode(params)}')
 
-# Include the router in the main app
+
+@api_router.get('/auth/discord/callback')
+async def discord_callback(code: Optional[str] = None, error: Optional[str] = None):
+    if error or not code:
+        return RedirectResponse(f'{FRONTEND_URL}/character-sheet?error=auth_failed')
+
+    # exchange code for token
+    data = {
+        'client_id': DISCORD_CLIENT_ID,
+        'client_secret': DISCORD_CLIENT_SECRET,
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': DISCORD_REDIRECT_URI,
+    }
+    try:
+        token_resp = requests.post(DISCORD_TOKEN_URL, data=data, headers={'Content-Type': 'application/x-www-form-urlencoded'}, timeout=10)
+        token_resp.raise_for_status()
+        access_token = token_resp.json().get('access_token')
+        if not access_token:
+            raise ValueError('no access_token')
+        user_resp = requests.get(DISCORD_USER_URL, headers={'Authorization': f'Bearer {access_token}'}, timeout=10)
+        user_resp.raise_for_status()
+        user = user_resp.json()
+    except Exception as e:
+        logging.exception('Discord OAuth error: %s', e)
+        return RedirectResponse(f'{FRONTEND_URL}/character-sheet?error=oauth')
+
+    # upsert user in DB
+    await db.users.update_one(
+        {'id': user['id']},
+        {'$set': {**user, 'last_login': datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+
+    token = make_jwt(user)
+    # Redirect back to frontend with the token in URL hash (frontend will store it)
+    return RedirectResponse(f'{FRONTEND_URL}/character-sheet#token={token}')
+
+
+@api_router.get('/auth/me')
+async def me(request: Request):
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else None
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+    return {'user': user}
+
+
+@api_router.post('/drafts')
+async def save_draft(payload: DraftIn, request: Request):
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else None
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+    doc = {
+        'user_id': user['id'],
+        'kind': payload.kind,
+        'data': payload.data,
+        'updated_at': datetime.now(timezone.utc).isoformat(),
+    }
+    await db.drafts.update_one(
+        {'user_id': user['id'], 'kind': payload.kind},
+        {'$set': doc},
+        upsert=True,
+    )
+    return {'ok': True}
+
+
+@api_router.get('/drafts/{kind}')
+async def get_draft(kind: str, request: Request):
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else None
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+    doc = await db.drafts.find_one({'user_id': user['id'], 'kind': kind})
+    if not doc:
+        return {'data': None}
+    return {'data': doc.get('data'), 'updated_at': doc.get('updated_at')}
+
+
+def _truncate(s: str, n: int = 1000) -> str:
+    if s is None:
+        return ''
+    s = str(s)
+    return s if len(s) <= n else s[: n - 3] + '...'
+
+
+async def _send_discord_webhook(title: str, description: str, fields: list, user: Dict[str, Any]):
+    if not DISCORD_WEBHOOK_URL:
+        logging.warning('DISCORD_WEBHOOK_URL not configured')
+        return False
+    avatar_url = None
+    if user.get('avatar'):
+        avatar_url = f"https://cdn.discordapp.com/avatars/{user['id']}/{user['avatar']}.png"
+    embed = {
+        'title': title,
+        'description': description[:2000],
+        'color': 0xCE9A16,
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'author': {
+            'name': f"{user.get('global_name') or user.get('username')} ({user.get('id')})",
+            **({'icon_url': avatar_url} if avatar_url else {}),
+        },
+        'footer': {'text': "Rust Valley 85's \u00b7 Staff Review"},
+        'fields': fields[:25],
+    }
+    try:
+        r = requests.post(DISCORD_WEBHOOK_URL, json={'embeds': [embed]}, timeout=10)
+        r.raise_for_status()
+        return True
+    except Exception as e:
+        logging.exception('webhook error: %s', e)
+        return False
+
+
+@api_router.post('/submit/character')
+async def submit_character(payload: SubmitCharacter, request: Request):
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else None
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+
+    data = payload.data or {}
+    # Build fields grouped by section
+    SECTION_ORDER = [
+        ('Anagrafica', ['fullName', 'nickname', 'birthDate', 'birthPlace', 'nationality', 'gender']),
+        ('Aspetto', ['height', 'weight', 'eyes', 'hair', 'signs']),
+        ('Famiglia', ['father', 'mother', 'siblings', 'socialClass']),
+        ('Formazione', ['education', 'jobs', 'skills']),
+        ('Personalit\u00e0', ['traits', 'virtues', 'flaws', 'fears', 'goals']),
+        ('Background', ['childhood', 'adolescence', 'adulthood', 'arrival', 'future']),
+    ]
+    fields = []
+    for section, keys in SECTION_ORDER:
+        parts = [f"**{k}**: {_truncate(data.get(k, ''), 240)}" for k in keys if data.get(k)]
+        if parts:
+            fields.append({'name': section, 'value': _truncate('\n'.join(parts), 1024), 'inline': False})
+
+    submission_id = str(uuid.uuid4())
+    await db.submissions.insert_one({
+        'id': submission_id,
+        'user_id': user['id'],
+        'kind': 'character',
+        'data': data,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+    })
+
+    ok = await _send_discord_webhook(
+        title=f"Nuova Scheda Personaggio \u2014 {data.get('fullName', 'Senza nome')}",
+        description=f"Inviata da **{user.get('username')}** (<@{user['id']}>)",
+        fields=fields or [{'name': 'Nota', 'value': 'Scheda inviata vuota.', 'inline': False}],
+        user=user,
+    )
+    return {'ok': True, 'submission_id': submission_id, 'webhook_sent': ok}
+
+
+@api_router.post('/submit/background')
+async def submit_background(payload: SubmitBackground, request: Request):
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else None
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+
+    fields = [
+        {'name': 'Personaggio', 'value': _truncate(payload.charName, 256), 'inline': True},
+        {'name': 'Et\u00e0', 'value': _truncate(payload.age or '-', 32), 'inline': True},
+        {'name': 'Giocatore', 'value': _truncate(payload.playerName or '-', 64), 'inline': True},
+        {'name': 'Discord Tag', 'value': _truncate(payload.discordTag or '-', 64), 'inline': True},
+        {'name': 'Storia', 'value': _truncate(payload.story, 1024), 'inline': False},
+    ]
+    if payload.motivation:
+        fields.append({'name': 'Motivazione', 'value': _truncate(payload.motivation, 1024), 'inline': False})
+
+    submission_id = str(uuid.uuid4())
+    await db.submissions.insert_one({
+        'id': submission_id,
+        'user_id': user['id'],
+        'kind': 'background',
+        'data': payload.dict(),
+        'created_at': datetime.now(timezone.utc).isoformat(),
+    })
+    ok = await _send_discord_webhook(
+        title=f"Nuovo Background \u2014 {payload.charName}",
+        description=f"Inviato da **{user.get('username')}** (<@{user['id']}>)",
+        fields=fields,
+        user=user,
+    )
+    return {'ok': True, 'submission_id': submission_id, 'webhook_sent': ok}
+
+
 app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-@app.on_event("shutdown")
+@app.on_event('shutdown')
 async def shutdown_db_client():
     client.close()

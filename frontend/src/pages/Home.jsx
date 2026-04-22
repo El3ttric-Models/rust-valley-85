@@ -8,7 +8,6 @@ import { IMAGES, BRAND } from '../mock';
 export default function Home() {
   return (
     <section className="relative overflow-hidden" style={{ minHeight: 'calc(100vh - 74px)' }}>
-      {/* Background image */}
       <div
         className="absolute inset-0"
         style={{
@@ -17,29 +16,36 @@ export default function Home() {
           backgroundPosition: 'center',
         }}
       />
-      {/* Dark overlay for readability */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(180deg, rgba(2,38,35,0.55) 0%, rgba(2,38,35,0.85) 100%)',
+            'linear-gradient(180deg, rgba(2,38,35,0.55) 0%, rgba(2,38,35,0.9) 100%)',
         }}
       />
 
-      {/* Minimal centered content */}
       <div
-        className="relative z-10 flex flex-col items-center justify-center text-center px-6"
+        className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-16"
         style={{ minHeight: 'calc(100vh - 74px)' }}
       >
         <div className="float-up">
           <Logo size="xl" />
         </div>
 
+        <div className="mt-8 float-up" style={{ animationDelay: '0.12s' }}>
+          <span
+            className="inline-block px-4 py-1 rounded-full font-head uppercase text-xs tracking-[0.4em]"
+            style={{ background: 'rgba(206,154,22,0.15)', color: '#CE9A16', border: '1px solid #CE9A16' }}
+          >
+            {BRAND.mainPhrase}
+          </span>
+        </div>
+
         <p
-          className="mt-6 max-w-xl text-base md:text-lg float-up"
-          style={{ color: '#e7ebdd', animationDelay: '0.15s' }}
+          className="mt-6 max-w-2xl text-lg md:text-2xl float-up italic"
+          style={{ color: '#f5efe0', animationDelay: '0.2s', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}
         >
-          {BRAND.subtitle}
+          “{BRAND.secondaryPhrase}”
         </p>
 
         <div
@@ -75,8 +81,33 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-12 float-up" style={{ animationDelay: '0.45s' }}>
+        <div className="mt-10 float-up" style={{ animationDelay: '0.45s' }}>
           <SocialIcons variant="footer" />
+        </div>
+
+        {/* Description at the bottom */}
+        <div
+          className="mt-16 max-w-3xl float-up"
+          style={{ animationDelay: '0.55s' }}
+        >
+          <div
+            className="relative p-7 rounded-2xl text-left"
+            style={{
+              background: 'rgba(4,57,53,0.78)',
+              border: '1px solid rgba(206,154,22,0.5)',
+              backdropFilter: 'blur(6px)',
+            }}
+          >
+            <span
+              className="absolute -top-3 left-5 px-3 py-1 rounded-full font-head uppercase text-[10px] tracking-[0.3em]"
+              style={{ background: '#CE9A16', color: '#043935' }}
+            >
+              La Valle
+            </span>
+            <p className="text-sm md:text-base leading-relaxed" style={{ color: '#e6ede9' }}>
+              {BRAND.description}
+            </p>
+          </div>
         </div>
       </div>
     </section>

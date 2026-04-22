@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, BookOpen, Shield, User, FileText } from 'lucide-react';
+import { Menu, X, ChevronDown, BookOpen, Shield, User } from 'lucide-react';
 import SocialIcons from './SocialIcons';
 import Logo from './Logo';
 
@@ -37,7 +37,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300`}
+      className="sticky top-0 z-50 w-full transition-all duration-300"
       style={{
         background: scrolled ? 'rgba(2, 38, 35, 0.95)' : 'linear-gradient(180deg, rgba(2,38,35,0.95) 0%, rgba(2,38,35,0.75) 100%)',
         borderBottom: `1px solid ${scrolled ? '#CE9A16' : 'rgba(19,136,127,0.5)'}`,
@@ -49,7 +49,6 @@ export default function Navbar() {
           <Logo size="sm" />
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-2">
           <NavLink to="/rules" style={({ isActive }) => (isActive ? styleActive : styleInactive)} className={linkBase}>
             <Shield size={14} /> Regole
@@ -62,9 +61,7 @@ export default function Navbar() {
           >
             <button
               className={linkBase}
-              style={
-                location.pathname.startsWith('/wiki') ? styleActive : styleInactive
-              }
+              style={location.pathname.startsWith('/wiki') ? styleActive : styleInactive}
               aria-haspopup="true"
               aria-expanded={wikiOpen}
             >
@@ -93,11 +90,8 @@ export default function Navbar() {
             )}
           </div>
 
-          <NavLink to="/background-form" style={({ isActive }) => (isActive ? styleActive : styleInactive)} className={linkBase}>
-            <FileText size={14} /> Background
-          </NavLink>
           <NavLink to="/character-sheet" style={({ isActive }) => (isActive ? styleActive : styleInactive)} className={linkBase}>
-            <User size={14} /> Scheda
+            <User size={14} /> Scheda Personaggio
           </NavLink>
         </nav>
 
@@ -115,14 +109,12 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {open && (
         <div className="lg:hidden border-t" style={{ borderColor: '#13887F', background: '#022623' }}>
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2">
             <NavLink to="/rules" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Regole</NavLink>
             <NavLink to="/wiki/background-guide" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Wiki · Background Guide</NavLink>
             <NavLink to="/wiki/historical" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Wiki · Introduzione Storica</NavLink>
-            <NavLink to="/background-form" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#043935', color: '#f5efe0' }}>Invia Background</NavLink>
             <NavLink to="/character-sheet" className="px-4 py-3 rounded-lg font-head uppercase text-sm tracking-widest" style={{ background: '#CE9A16', color: '#043935' }}>Scheda Personaggio</NavLink>
             <div className="pt-3"><SocialIcons variant="footer" /></div>
           </div>

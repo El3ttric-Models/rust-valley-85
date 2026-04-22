@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { User, Save, Send, LogOut, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { User, Save, Send, LogOut, CheckCircle2, Loader2 } from 'lucide-react';
 import { CHARACTER_SECTIONS, IMAGES } from '../mock';
 import { PageHeader } from './Rules';
 import { useToast } from '../hooks/use-toast';
@@ -17,7 +17,7 @@ function DiscordLogin() {
       <div className="max-w-5xl mx-auto">
         <div
           className="relative overflow-hidden rounded-2xl grid md:grid-cols-[260px_1fr]"
-          style={{ background: 'rgba(4,57,53,0.8)', border: '1px solid #CE9A16' }}
+          style={{ background: 'rgba(4,57,53,0.85)', border: '1px solid #CE9A16' }}
         >
           <div
             className="hidden md:flex items-center justify-center p-10"
@@ -44,6 +44,31 @@ function DiscordLogin() {
         </div>
       </div>
     </section>
+  );
+}
+
+function Field({ f, value, onChange }) {
+  const base = { background: 'rgba(2,38,35,0.9)', border: '1px solid rgba(19,136,127,0.5)', color: '#f5efe0' };
+  return (
+    <div className={f.type === 'textarea' ? 'md:col-span-2' : ''}>
+      <label className="font-head uppercase tracking-widest text-xs" style={{ color: '#CE9A16' }}>{f.label}</label>
+      {f.type === 'textarea' ? (
+        <textarea rows={f.rows || 4} value={value} onChange={onChange} placeholder={f.placeholder}
+          className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors" style={base} />
+      ) : f.type === 'select' ? (
+        <select value={value} onChange={onChange}
+          className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors" style={base}>
+          <option value="">Seleziona...</option>
+          {f.options.map((o) => (<option key={o} value={o}>{o}</option>))}
+        </select>
+      ) : (
+        <input type={f.type} value={value} onChange={onChange} placeholder={f.placeholder}
+          className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors" style={base} />
+      )}
+      {f.hint && (
+        <div className="mt-1 text-[11px]" style={{ color: '#9fbfbb' }}>{f.hint}</div>
+      )}
+    </div>
   );
 }
 
@@ -78,25 +103,25 @@ function Sheet({ user, onLogout }) {
     try {
       await api.saveDraft('character', data);
       toast({ title: 'Bozza salvata', description: 'Puoi tornare a completarla in qualsiasi momento.' });
-    } catch (e) {
+    } catch {
       toast({ title: 'Errore', description: 'Impossibile salvare la bozza sul server.', variant: 'destructive' });
     }
   };
 
   const submit = async () => {
-    const required = ['fullName', 'birthDate', 'childhood', 'adulthood', 'arrival'];
+    const required = ['fullName', 'birthDate', 'ethnicity', 'archetype', 'childhood', 'adulthood', 'arrival'];
     const missing = required.filter((k) => !data[k]);
     if (missing.length) {
-      toast({ title: 'Campi mancanti', description: 'Completa almeno anagrafica e sezioni narrative principali.', variant: 'destructive' });
+      toast({ title: 'Campi mancanti', description: 'Completa anagrafica, origini/ruolo e sezioni narrative principali.', variant: 'destructive' });
       return;
     }
     setSubmitting(true);
     try {
       const res = await api.submitCharacter(data);
       if (res.webhook_sent) {
-        toast({ title: 'Scheda inviata', description: 'La tua scheda è stata recapitata allo staff su Discord. Buona fortuna!' });
+        toast({ title: 'Scheda inviata', description: 'Recapitata allo staff su Discord.' });
       } else {
-        toast({ title: 'Scheda salvata', description: 'Salvata sul server, ma invio webhook fallito. Lo staff verrà notificato manualmente.' });
+        toast({ title: 'Scheda salvata', description: 'Salvata sul server, ma invio webhook fallito.' });
       }
     } catch (e) {
       toast({ title: 'Errore invio', description: e?.response?.data?.detail || 'Invio non riuscito.', variant: 'destructive' });
@@ -111,7 +136,7 @@ function Sheet({ user, onLogout }) {
       <div className="max-w-6xl mx-auto">
         <div
           className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl mb-6"
-          style={{ background: 'rgba(4,57,53,0.8)', border: '1px solid rgba(19,136,127,0.5)' }}
+          style={{ background: 'rgba(4,57,53,0.85)', border: '1px solid rgba(19,136,127,0.5)' }}
         >
           <div className="flex items-center gap-4">
             {user.avatar ? (
@@ -147,7 +172,7 @@ function Sheet({ user, onLogout }) {
         </div>
 
         <div className="grid lg:grid-cols-[260px_1fr] gap-6">
-          <aside className="rounded-2xl p-4 h-fit lg:sticky lg:top-24" style={{ background: 'rgba(4,57,53,0.75)', border: '1px solid rgba(19,136,127,0.5)' }}>
+          <aside className="rounded-2xl p-4 h-fit lg:sticky lg:top-24" style={{ background: 'rgba(4,57,53,0.85)', border: '1px solid rgba(19,136,127,0.5)' }}>
             <div className="font-head uppercase tracking-widest text-xs mb-3" style={{ color: '#CE9A16' }}>Sezioni</div>
             <ul className="flex lg:flex-col gap-2 overflow-x-auto">
               {CHARACTER_SECTIONS.map((s, i) => (
@@ -168,7 +193,7 @@ function Sheet({ user, onLogout }) {
             </ul>
           </aside>
 
-          <div className="rounded-2xl p-7" style={{ background: 'rgba(4,57,53,0.75)', border: '1px solid rgba(19,136,127,0.5)' }}>
+          <div className="rounded-2xl p-7" style={{ background: 'rgba(4,57,53,0.85)', border: '1px solid rgba(19,136,127,0.5)' }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-head uppercase tracking-widest text-xl md:text-2xl" style={{ color: '#f5efe0' }}>{section.title}</h2>
               <div className="hidden md:block font-retro text-base" style={{ color: '#13887F' }}>&gt; {section.id.toUpperCase()}</div>
@@ -182,25 +207,7 @@ function Sheet({ user, onLogout }) {
 
             <div className="grid md:grid-cols-2 gap-5">
               {section.fields.map((f) => (
-                <div key={f.key} className={f.type === 'textarea' ? 'md:col-span-2' : ''}>
-                  <label className="font-head uppercase tracking-widest text-xs" style={{ color: '#CE9A16' }}>{f.label}</label>
-                  {f.type === 'textarea' ? (
-                    <textarea rows={f.rows || 4} value={data[f.key] || ''} onChange={set(f.key)} placeholder={f.placeholder}
-                      className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors"
-                      style={{ background: 'rgba(2,38,35,0.9)', border: '1px solid rgba(19,136,127,0.5)', color: '#f5efe0' }} />
-                  ) : f.type === 'select' ? (
-                    <select value={data[f.key] || ''} onChange={set(f.key)}
-                      className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors"
-                      style={{ background: 'rgba(2,38,35,0.9)', border: '1px solid rgba(19,136,127,0.5)', color: '#f5efe0' }}>
-                      <option value="">Seleziona...</option>
-                      {f.options.map((o) => (<option key={o} value={o}>{o}</option>))}
-                    </select>
-                  ) : (
-                    <input type={f.type} value={data[f.key] || ''} onChange={set(f.key)} placeholder={f.placeholder}
-                      className="mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:border-[#CE9A16] transition-colors"
-                      style={{ background: 'rgba(2,38,35,0.9)', border: '1px solid rgba(19,136,127,0.5)', color: '#f5efe0' }} />
-                  )}
-                </div>
+                <Field key={f.key} f={f} value={data[f.key] || ''} onChange={set(f.key)} />
               ))}
             </div>
 
@@ -235,7 +242,6 @@ export default function CharacterSheet() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check for token in URL hash (post-OAuth redirect)
     if (window.location.hash.startsWith('#token=')) {
       const token = window.location.hash.replace('#token=', '');
       setToken(token);
@@ -258,7 +264,12 @@ export default function CharacterSheet() {
 
   return (
     <div>
-      <PageHeader icon={User} title="Scheda Personaggio" subtitle="Compila ogni sezione per dare vita al tuo cittadino di Rust Valley." image={IMAGES.valley} />
+      <PageHeader
+        icon={User}
+        title="Scheda Personaggio"
+        subtitle="Compila ogni sezione per dare vita al tuo cittadino di Rust Valley."
+        image={IMAGES.character}
+      />
       {checking ? (
         <div className="py-20 text-center" style={{ color: '#9fbfbb' }}>
           <Loader2 className="inline-block animate-spin" size={20} /> Verifica sessione...

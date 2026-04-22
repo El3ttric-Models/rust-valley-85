@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import Rules from './pages/Rules';
 import WikiBackgroundGuide from './pages/WikiBackgroundGuide';
 import WikiHistorical from './pages/WikiHistorical';
-import BackgroundForm from './pages/BackgroundForm';
 import CharacterSheet from './pages/CharacterSheet';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -30,7 +29,6 @@ function App() {
           <Route path="/rules" element={<Rules />} />
           <Route path="/wiki/background-guide" element={<WikiBackgroundGuide />} />
           <Route path="/wiki/historical" element={<WikiHistorical />} />
-          <Route path="/background-form" element={<BackgroundForm />} />
           <Route path="/character-sheet" element={<CharacterSheet />} />
         </Routes>
       </Layout>

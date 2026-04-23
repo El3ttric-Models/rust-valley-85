@@ -29,7 +29,7 @@ export default function Home() {
         style={{ minHeight: 'calc(100vh - 74px)' }}
       >
         <div className="float-up">
-          <Logo size="xl" />
+          <Logo size="xl" variant="home" />
         </div>
 
         <div className="mt-8 float-up" style={{ animationDelay: '0.12s' }}>
